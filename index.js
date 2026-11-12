@@ -514,10 +514,10 @@ function nmGhost(col, dir, f, kind) {  // kind : n normal, f effrayé, e les yeu
 function nmSprite(g, src, e, moving) {
   if (!src || (src.naturalWidth === 0)) return;
   const col = moving ? NM_CYCLE[Math.floor(e.step / 5) % 8] : 0, row = NM_ROW[e.dir] ?? 0;
-  const x = Math.round(e.x * NM.T + NM.T / 2 - 32), y = Math.round(NM.TOP + e.y * NM.T + NM.T / 2 - 40);
-  g.drawImage(src, col * 64, row * 64, 64, 64, x, y, 64, 64);
-  if (x < 0) g.drawImage(src, col * 64, row * 64, 64, 64, x + NM.W, y, 64, 64);  // à cheval sur le passage
-  if (x + 64 > NM.W) g.drawImage(src, col * 64, row * 64, 64, 64, x - NM.W, y, 64, 64);
+  const S = 48, x = Math.round(e.x * NM.T + NM.T / 2 - S / 2), y = Math.round(NM.TOP + e.y * NM.T + NM.T / 2 - S * .62);  // NeoMe un peu plus petite que sa planche de 64
+  g.drawImage(src, col * 64, row * 64, 64, 64, x, y, S, S);
+  if (x < 0) g.drawImage(src, col * 64, row * 64, 64, 64, x + NM.W, y, S, S);  // à cheval sur le passage
+  if (x + S > NM.W) g.drawImage(src, col * 64, row * 64, 64, 64, x - NM.W, y, S, S);
 }
 function nmDraw() {
   const g = nm.g, T = NM.T, W = NM.W; if (!g) return;
