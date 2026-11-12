@@ -1,0 +1,9 @@
+{
+  "pluginId": "neodex.neoman",
+  "repo": "NDesumeur/neodex-plugin-neoman",
+  "version": "1.0.0",
+  "sha256": "cb362b1a049376ff4d5a87b10eeee7f38c2c48d7fd5249e89d9de67472e5d144",
+  "approvedAt": "2026-11-12T12:24:45.790Z",
+  "neobase": ">=4.0.0",
+  "signature": "Hb/uTB2Z2oqwkqatA1CnMUzuxjIMALcs5g4atq6L9YZ3SGH0FVyhBd3eY08bEzYZuq8++eo3Dxd6++LzNbY4Ag=="
+}
