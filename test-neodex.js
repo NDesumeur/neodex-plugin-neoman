@@ -12,5 +12,18 @@ module.exports = async ({ pj, sleep }) => {
   await pj(`clearInterval(window.__nmBotT), 0`);
   const l = await pj(`${C}.getAttribute('aria-label')`), m = /score (\d+)/.exec(l);
   if (!m || +m[1] < 300) throw new Error('le joueur automatique devait marquer des points : « ' + l + ' »');
-  return l;
+  // les labyrinthes : un nouveau tous les 3 niveaux
+  const mazes = [];
+  for (const n of [1, 4, 7, 10, 13]) { await pj(`${C}.__nm.level(${n}), 0`); await sleep(150); mazes.push(await pj(`${C}.__nm.maze()`)); if (n > 1 && n < 13) await shot('labyrinthe-' + n); }
+  if (mazes.join() !== 'Disco,Cristal,Jardin,Braise,Disco') throw new Error('labyrinthes par niveau : ' + mazes.join());
+  await pj(`document.getElementById('nmNew').click(), 0`); await sleep(200);
+  // plein écran, et le jeu qui tient dans la fenêtre
+  await pj(`document.getElementById('nmFs').click(), 0`); await sleep(700);
+  const fs = await pj(`(() => { const c = ${C}, r = c.getBoundingClientRect(); return document.fullscreenElement === c.parentElement && (Math.abs(r.height - innerHeight) < 3 || Math.abs(r.width - innerWidth) < 3); })()`);
+  await pj(`document.fullscreenElement && document.exitFullscreen(), 0`); await sleep(300);
+  if (!fs) throw new Error('le plein écran ne remplit pas l\'écran');
+  const L = await pj(`(() => { const r = ${C}.getBoundingClientRect(); let s = 0; for (let e = ${C}.parentElement; e; e = e.parentElement) s += e.scrollTop; return { bottom: Math.round(r.bottom + s), h: Math.round(r.height), wh: innerHeight, ww: innerWidth, sw: document.documentElement.scrollWidth }; })()`);
+  if (process.env.NEO_FIT_LOG) console.log('FIT', JSON.stringify(L));
+  if (L.bottom > L.wh + 1 || L.sw > L.ww + 1 || L.h < 300) throw new Error('le jeu dépasse la fenêtre ou reste petit : ' + JSON.stringify(L));
+  return l + ' · labyrinthes ' + mazes.slice(0, 4).join(', ') + ' · plein écran · ' + L.h + ' px dans ' + L.ww + '×' + L.wh;
 };

@@ -25,6 +25,14 @@ A pixel art maze game: NeoMe eats every music note while four little ghosts chas
 - Twice per level, a **Studio item** appears under the crypt: sword, clock, watch or lightning stone (100 to 1000 points).
 - 3 lives, one more at **10,000 points**. Each level goes a bit faster, and the records last a bit less.
 
+## Mazes
+
+Every 3 levels, NeoMe changes maze: **Disco** (purple walls, levels 1 to 3), **Crystal** (ice blue, 4 to 6), **Garden** (green, 7 to 9) then **Embers** (orange, 10 to 12), and round again. The ghosts' crypt, the start and the bonus spot stay the same; the corridors, the side-to-side passages and the discs' places change. The new maze's name shows at the start.
+
+## Full screen
+
+The **Full screen** button fills the whole screen with the maze (Escape to leave). Otherwise it takes all the height the window leaves, from a small laptop to a big screen.
+
 ## Statistics
 
 The Records panel keeps your **best score**, your **highest level**, the **ghosts caught** and the number of **games**.

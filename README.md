@@ -25,6 +25,14 @@ Un jeu de labyrinthe en pixel art : NeoMe mange toutes les notes de musique pend
 - Deux fois par niveau, un **objet du Studio** apparaît sous la crypte : épée, horloge, montre ou pierre de foudre (100 à 1000 points).
 - 3 vies, une de plus à **10 000 points**. Chaque niveau va un peu plus vite, et les disques durent un peu moins longtemps.
 
+## Les labyrinthes
+
+Tous les 3 niveaux, NeoMe change de labyrinthe : **Disco** (murs violets, niveaux 1 à 3), **Cristal** (bleu glacier, 4 à 6), **Jardin** (vert, 7 à 9) puis **Braise** (orange, 10 à 12), et on recommence. La crypte des fantômes, le départ et la place des bonus restent les mêmes ; les couloirs, les passages d'un bord à l'autre et la place des disques changent. Le nom du nouveau labyrinthe s'affiche au départ.
+
+## Plein écran
+
+Le bouton **Plein écran** agrandit le labyrinthe à tout l'écran (Échap pour en sortir). Hors plein écran, il prend toute la hauteur que laisse la fenêtre, du petit portable au grand écran.
+
 ## Statistiques
 
 Le panneau Records garde ton **meilleur score**, ton **plus haut niveau**, les **fantômes attrapés** et le nombre de **parties**.
