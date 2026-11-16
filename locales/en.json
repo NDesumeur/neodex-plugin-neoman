@@ -93,5 +93,15 @@
  "taille du labyrinthe": "maze size",
  "un fantôme ne tue pas": "a ghost does not kill",
  "vérification du jeu :": "game check:",
- "Épée de la Connaissance": "Sword of Knowledge"
+ "Épée de la Connaissance": "Sword of Knowledge",
+ "NeoMe danse dans le labyrinthe : mange toutes les notes pour passer au niveau suivant. Quatre petits fantômes la poursuivent, chacun à sa façon : Prune la traque, Menthe lui coupe la route, Miel la prend à revers et Groseille rôde. Les disques font fuir les fantômes quelques secondes : c'est le moment de les attraper. Des objets du Studio apparaissent sous la crypte, et une vie de plus t'attend à 10 000 points. Tous les 3 niveaux, un nouveau labyrinthe : Disco, Cristal, Jardin puis Braise.": "NeoMe dances in the maze: eat all the notes to reach the next level. Four little ghosts chase her, each in its own way: Plum tracks her, Mint cuts her off, Honey comes from behind and Currant wanders. The discs make the ghosts flee for a few seconds: that's the time to catch them. Studio items appear under the crypt, and an extra life awaits you at 10,000 points. Every 3 levels, a new maze: Disco, Crystal, Garden then Ember.",
+ "Disco": "Disco",
+ "Cristal": "Crystal",
+ "Jardin": "Garden",
+ "Braise": "Ember",
+ "Labyrinthe": "Maze",
+ "repères": "markers",
+ "peu de notes": "few notes",
+ "le niveau 4 devait changer de labyrinthe": "level 4 should have changed maze",
+ "joueur auto dans le labyrinthe 2 :": "auto player in maze 2:"
 }
