@@ -73,7 +73,6 @@
  "RECORD": "BEST",
  "RECORDS": "BESTS",
  "Record": "Best",
- "Records.": "Records.",
  "SCORE": "SCORE",
  "Ua": "Ua",
  "Uc": "Uc",
@@ -103,5 +102,6 @@
  "repères": "markers",
  "peu de notes": "few notes",
  "le niveau 4 devait changer de labyrinthe": "level 4 should have changed maze",
- "joueur auto dans le labyrinthe 2 :": "auto player in maze 2:"
+ "joueur auto dans le labyrinthe 2 :": "auto player in maze 2:",
+ "Rien n'est synchronisé : tes records restent sur cet appareil.": "Nothing is synced: your records stay on this device."
 }
