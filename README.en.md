@@ -6,6 +6,12 @@ A pixel art maze game: NeoMe eats every music note while four little ghosts chas
 
 ![Neo-Man](screenshots/1.jpg)
 
+## Championship and new mazes (new in 1.2.0)
+
+- The **Championship (5 min)** button: five minutes for the biggest score, in a random maze. **Grey ghosts sleep** in the corridors; when NeoMe passes by, they wake up and **line up** behind one of the four ghosts.
+- Eat a disc and gobble the whole line: **100, 200, 300 points…** more and more. The notes come back as soon as they are all eaten (+1,000 points), and everything gets a bit faster. Separate record.
+- Three more mazes: **Néon**, **Océan** and **Galaxie** (seven in all, a new one every 3 levels).
+
 ## Controls
 
 - **Arrows** or **WASD** (or **ZQSD**): turn. NeoMe takes the turn as soon as it opens, and can turn back at any time.

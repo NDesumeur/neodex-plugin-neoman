@@ -6,6 +6,12 @@ Un jeu de labyrinthe en pixel art : NeoMe mange toutes les notes de musique pend
 
 ![Neo-Man](screenshots/1.jpg)
 
+## Championnat et nouveaux labyrinthes (nouveau en 1.2.0)
+
+- Le bouton **Championnat (5 min)** : cinq minutes pour le plus gros score, dans un labyrinthe au hasard. Des **fantômes gris dorment** dans les couloirs ; quand NeoMe passe à côté, ils se réveillent et **s'accrochent en file** derrière un des quatre fantômes.
+- Mange un disque et dévore toute la file : **100, 200, 300 points…** de plus en plus. Les notes reviennent dès qu'elles sont toutes mangées (+1 000 points), et tout va un peu plus vite. Record à part.
+- Trois labyrinthes de plus : **Néon**, **Océan** et **Galaxie** (sept en tout, un nouveau tous les 3 niveaux).
+
 ## Commandes
 
 - **Flèches** ou **ZQSD** (ou **WASD**) : tourner. NeoMe prend le virage dès qu'il s'ouvre, et peut faire demi-tour à tout moment.

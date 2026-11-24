@@ -6,7 +6,8 @@ const HTML = `<div class="appWrap wide">
     <div class="gSide">
       <div class="sysCard"><b>RECORDS</b><div class="gStats" id="nmStats"></div></div>
       <div class="row"><button class="btn main" id="nmNew">NOUVELLE PARTIE</button><button class="btn" id="nmFs">PLEIN ÉCRAN</button></div>
-      <div class="hint">NeoMe danse dans le labyrinthe : mange toutes les notes pour passer au niveau suivant. Quatre petits fantômes la poursuivent, chacun à sa façon : Prune la traque, Menthe lui coupe la route, Miel la prend à revers et Groseille rôde. Les disques font fuir les fantômes quelques secondes : c'est le moment de les attraper. Des objets du Studio apparaissent sous la crypte, et une vie de plus t'attend à 10 000 points. Tous les 3 niveaux, un nouveau labyrinthe : Disco, Cristal, Jardin puis Braise.</div>
+      <div class="hint">NeoMe danse dans le labyrinthe : mange toutes les notes pour passer au niveau suivant. Quatre petits fantômes la poursuivent, chacun à sa façon : Prune la traque, Menthe lui coupe la route, Miel la prend à revers et Groseille rôde. Les disques font fuir les fantômes quelques secondes : c'est le moment de les attraper. Des objets du Studio apparaissent sous la crypte, et une vie de plus t'attend à 10 000 points. Tous les 3 niveaux, un nouveau labyrinthe : Disco, Cristal, Jardin, Braise, Néon, Océan puis Galaxie.</div>
+      <div class="sysCard"><b>CHAMPIONNAT</b><div class="hint">Cinq minutes pour le plus gros score, dans un labyrinthe au hasard. Des fantômes gris dorment dans les couloirs : quand NeoMe passe à côté, ils se réveillent et s'accrochent en file derrière un des quatre fantômes. Mange un disque et dévore toute la file : 100, 200, 300 points… de plus en plus. Les notes reviennent dès qu'elles sont toutes mangées, et tout va un peu plus vite.</div><div class="row"><button class="btn main" id="nmChamp">CHAMPIONNAT (5 MIN)</button></div></div>
     </div></div>
 </div>`;
 const CSS = `.gMain{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
@@ -420,6 +421,15 @@ const NM_MAPS = [
     '#.................#',
     '###################',
   ]},
+  {name: 'Néon', wall: ['#ff5ab4', '#9a2a6a', '#2a0a1e'], map: [
+    '###################', '#o..#.........#..o#', '#.#.#.#######.#.#.#', '#.....##...##.....#', '##.###...#...###.##', '##.....#.#.#.....##', '####.###.#.###.####', '   #.#.......#.#   ', '####.#.##-##.#.####', '=....#.#ggg#.#....=',
+    '####.#.#####.#.####', '   #.#.......#.#   ', '####.#.#####.#.####', '##...#.......#...##', '##.#...##.##...#.##', '##.###.##P##.###.##', '#....#..#.#..#....#', '#o##.##.#.#.##.##o#', '#.##....#.#....##.#', '#....##.....##....#', '###################']},
+  {name: 'Océan', wall: ['#4ae0d0', '#1a7a8a', '#06202a'], map: [
+    '###################', '#o.....#...#.....o#', '#.####.#.#.#.####.#', '#......#.#.#......#', '#.#####..#..#####.#', '#....#..###..#....#', '####.#.#####.#.####', '=..#.#.......#.#..=', '##.#.#.##-##.#.#.##', '##.#.#.#ggg#.#.#.##',
+    '##.#.#.#####.#.#.##', '#....#.......#....#', '#.##.#.#####.#.##.#', '#..#.#.......#.#..#', '##.#.####.####.#.##', '##.#...#.P.#...#.##', '#...##...#...##...#', '#o#...##...##...#o#', '#.###.#######.###.#', '#.................#', '###################']},
+  {name: 'Galaxie', wall: ['#e8e0ff', '#6a5aa8', '#120c2a'], map: [
+    '###################', '##...###...###...##', '##.#.....#.....#.##', '#o..###.###.###..o#', '#.#.#....#....#.#.#', '#...#.##...##.#...#', '###.#.#######.#.###', '  #.#.........#.#  ', '###.##.##-##.##.###', '=...##.#ggg#.##...=',
+    '###.##.#####.##.###', '  #.#.........#.#  ', '###.#.#.###.#.#.###', '##....#.....#....##', '#..#############..#', '#o####...P...####o#', '#...##.#####.##...#', '#.#.............#.#', '#.#######.#######.#', '#.................#', '###################']},
 ];
 const nmMazeOf = level => NM_MAPS[Math.floor((level - 1) / 3) % NM_MAPS.length];
 let NM_MAP = NM_MAP0, nmMaze = NM_MAPS[0];
@@ -452,12 +462,12 @@ let nm = null, nmMute = false, nmac = null;
 const nms = gstore('neoman', {games: 0, levels: 0, ghosts: 0});
 function nmBeep(f, d, type = 'square', slide = 0, vol = .025) { if (nmMute) return; try { nmac ??= new AudioContext(); const o = nmac.createOscillator(), g = nmac.createGain(), t = nmac.currentTime; o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + d); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g).connect(nmac.destination); o.start(t); o.stop(t + d); } catch {} }
 
-function nmNew() {
-  nm = renew(nm, {mode: 'ready', tick: 0, score: 0, lives: 3, level: 1, extra: false, rnd: Math.random, keys: new Set(), g: nm?.g});
+function nmNew(champ = false) {
+  nm = renew(nm, {mode: 'ready', tick: 0, score: 0, lives: 3, level: 1, extra: false, rnd: Math.random, keys: new Set(), g: nm?.g, champ: champ ? {time: 5 * 3600, maze: NM_MAPS[Math.floor(Math.random() * NM_MAPS.length)], sleep: [], refills: 0, eatenTrain: 0} : null});
   nmLevel();
 }
 function nmLevel() {
-  nmUseMaze(nmMazeOf(nm.level));
+  nmUseMaze(nm.champ ? nm.champ.maze : nmMazeOf(nm.level));
   nm.dots = new Set(); nm.power = new Set();
   NM_MAP.forEach((row, r) => [...row].forEach((ch, c) => { if (ch === '.') nm.dots.add(c + ',' + r); if (ch === 'o') nm.power.add(c + ',' + r); }));
   nm.total = nm.dots.size + nm.power.size; nm.eaten = 0; nm.bonus = null; nm.bonusN = 0;
@@ -465,7 +475,8 @@ function nmLevel() {
 }
 function nmPlace() {  // début de niveau ou après une vie perdue : chacun à sa place
   nm.p = {x: NM.START[0], y: NM.START[1], dir: 'L', want: 'L', step: 0, moving: false};
-  nm.ghosts = NM_GHOSTS.map((d, i) => ({i, x: d.home[0], y: d.home[1], dir: i ? 'U' : 'L', state: i ? 'house' : 'roam', release: d.wait * 60, step: 0}));
+  nm.ghosts = NM_GHOSTS.map((d, i) => ({i, x: d.home[0], y: d.home[1], dir: i ? 'U' : 'L', state: i ? 'house' : 'roam', release: d.wait * 60, step: 0, hist: [], train: []}));
+  if (nm.champ) while (nm.champ.sleep.length < 10 && nmSleepAdd()) {}
   nm.fright = 0; nm.combo = 0; nm.t = 0; nm.dying = 0; nm.ready = 120; nm.pop = null;
 }
 const nmSpeed = () => Math.min(.155, .11 + nm.level * .006);   // en cases par image
@@ -517,6 +528,7 @@ function nmUpdate() {
   if (nm.dying) { if (--nm.dying === 0) { if (nm.lives <= 0) nmEnd(); else nmPlace(); } return; }
   if (nm.clear) { if (--nm.clear === 0) { nm.level++; nms.levels++; nmLevel(); } return; }
   nm.t++;
+  if (nm.champ && --nm.champ.time <= 0) { nm.champ.time = 0; nmBeep(440, .6, 'triangle', 110); return nmEnd(); }
   if (nm.pop && --nm.pop.t <= 0) nm.pop = null;
   // NeoMe : tourne dès que la case le permet, peut faire demi-tour à tout moment
   const p = nm.p, want = [...nm.keys].pop() || p.want;
@@ -525,8 +537,11 @@ function nmUpdate() {
   p.moving = nmMove(p, nmSpeed(), e => {
     const c = Math.round(e.x), r = Math.round(e.y), k = c + ',' + r;
     if (nm.dots.delete(k)) { nm.score += 10; nm.eaten++; nmBeep(NM_NOTES[nm.eaten % 8], .07, 'triangle', 0, .02); }
-    if (nm.power.delete(k)) { nm.score += 50; nm.eaten++; nm.fright = nmFrightTime(); nm.combo = 0; for (const g of nm.ghosts) if (g.state === 'roam') { g.fear = true; g.dir = NM_BACK[g.dir]; } nmBeep(220, .3, 'square', 880); }
+    if (nm.power.delete(k)) { nm.score += 50; nm.eaten++; nm.fright = nm.champ ? 330 : nmFrightTime(); nm.combo = 0; if (nm.champ) nm.champ.eatenTrain = 0; for (const g of nm.ghosts) if (g.state === 'roam') { g.fear = true; g.dir = NM_BACK[g.dir]; } nmBeep(220, .3, 'square', 880); }
     if ((nm.eaten === 70 || nm.eaten === 170) && !nm.bonus) { nm.bonus = {k: (nm.level - 1) % 4, t: 9 * 60}; }
+    if (!nm.dots.size && !nm.power.size && nm.champ) {  // en championnat, les notes reviennent tout de suite et tout va un peu plus vite
+      NM_MAP.forEach((row, r2) => [...row].forEach((ch, c2) => { if (ch === '.') nm.dots.add(c2 + ',' + r2); if (ch === 'o') nm.power.add(c2 + ',' + r2); })); nm.dots.delete(k); nm.power.delete(k);
+      nm.level++; nm.champ.refills++; nm.score += 1000; nm.pop = {text: '+1000', x: c, y: r, t: 80}; [784, 988, 1175].forEach((f, i) => setTimeout(() => nmBeep(f, .12, 'triangle'), i * 90)); }
     if (!nm.dots.size && !nm.power.size) { nm.clear = 120; [784, 988, 1175, 1568].forEach((f, i) => setTimeout(() => nmBeep(f, .15, 'triangle'), i * 120)); return null; }
     for (const d of [want, e.dir]) { const [dx, dy] = NM_DIRS[d]; if (nmOpen(c + dx, r + dy, false)) return d; }
     return null;
@@ -544,15 +559,41 @@ function nmUpdate() {
     nmMove(g, sp, nmGhostChoose); g.step++;
     if (g.state === 'roam' && Math.hypot(g.x - p.x, g.y - p.y) < .6) {
       if (g.fear) {
-        g.fear = false; g.state = 'eaten'; const pts = 200 << nm.combo++; nm.score += pts; nms.ghosts++;
+        g.fear = false; g.state = 'eaten'; if (g.train.length) { const to = nm.ghosts.find(h => h !== g && h.state === 'roam'); if (to) to.train.push(...g.train); else nm.champ?.sleep.push(...g.train.map(f => ({x: Math.round(f.x), y: Math.round(f.y), z: 0}))); g.train = []; }
+        const pts = 200 << nm.combo++; nm.score += pts; nms.ghosts++;
         nm.pop = {text: String(pts), x: g.x, y: g.y, t: 60}; nmBeep(1200, .25, 'sawtooth', 300);
-      } else { nm.lives--; nm.dying = 100; nmBeep(600, .9, 'sawtooth', 60, .03); return; }
+      } else { nm.lives--; nm.dying = 100; for (const h of nm.ghosts) h.train = []; nmBeep(600, .9, 'sawtooth', 60, .03); return; }
     }
   }
+  if (nm.champ) { nmTrains(); nmTrainHit(); }
+}
+const NM_GAP = 8;  // les images d'écart entre deux fantômes de la file (environ une case)
+function nmSleepAdd() {  // un fantôme endormi sur une case de couloir, loin de NeoMe et des autres dormeurs
+  const free = []; NM_MAP.forEach((row, r) => [...row].forEach((ch, c) => { if ('.o'.includes(ch) && Math.hypot(c - nm.p.x, r - nm.p.y) > 6 && !nm.champ.sleep.some(s => Math.abs(s.x - c) + Math.abs(s.y - r) < 3) && !(r >= 7 && r <= 11 && c >= 6 && c <= 12)) free.push([c, r]); }));
+  if (!free.length) return false; const [x, y] = free[Math.floor(nm.rnd() * free.length)]; nm.champ.sleep.push({x, y, z: nm.rnd() * 60}); return true;
+}
+function nmTrains() {  // chaque fantôme garde son chemin ; sa file le suit pas à pas ; les dormeurs se réveillent au passage de NeoMe
+  const p = nm.p, C = nm.champ;
+  for (const g of nm.ghosts) { g.hist.push({x: g.x, y: g.y, dir: g.dir}); if (g.hist.length > NM_GAP * 32) g.hist.shift();
+    g.train.forEach((f, k) => { const h = g.hist[Math.max(0, g.hist.length - 1 - (k + 1) * NM_GAP)]; f.x = h.x; f.y = h.y; f.dir = h.dir; }); }
+  for (const s of [...C.sleep]) if (Math.hypot(s.x - p.x, s.y - p.y) < 1.3) {
+    const leaders = nm.ghosts.filter(g => g.state === 'roam'); if (!leaders.length) break;
+    const g = leaders.sort((a, b) => Math.hypot(a.x - s.x, a.y - s.y) - Math.hypot(b.x - s.x, b.y - s.y))[0];
+    g.train.push({x: s.x, y: s.y, dir: 'U'}); C.sleep.splice(C.sleep.indexOf(s), 1); nmBeep(330, .12, 'triangle', 660);
+  }
+  if (C.sleep.length < 6 && nm.t % 90 === 0) nmSleepAdd();
+}
+function nmTrainHit() {  // contre la file : effrayée, elle se mange un fantôme à la fois ; sinon, c'est une vie perdue
+  const p = nm.p;
+  for (const g of nm.ghosts) for (const f of [...g.train]) if (Math.hypot(f.x - p.x, f.y - p.y) < .6) {
+    if (nm.fright > 0) { g.train.splice(g.train.indexOf(f), 1); const pts = 100 * ++nm.champ.eatenTrain; nm.score += pts; nms.ghosts++; nm.pop = {text: String(pts), x: f.x, y: f.y, t: 50}; nmBeep(900 + Math.min(12, nm.champ.eatenTrain) * 60, .12, 'square', 0, .02); }
+    else { nm.lives--; nm.dying = 100; for (const h of nm.ghosts) h.train = []; nmBeep(600, .9, 'sawtooth', 60, .03); return true; }
+  }
+  return false;
 }
 function nmEnd() {
   nm.mode = 'over'; nm.dead = 0; nms.games++;
-  nm.record = best('neoman', nm.score); best('neoman-level', nm.level); saveGames(); nmInfo();
+  if (nm.champ) { nm.record = best('neoman-champ', nm.score); nms.champs = (nms.champs || 0) + 1; } else { nm.record = best('neoman', nm.score); best('neoman-level', nm.level); } saveGames(); nmInfo();
 }
 
 /* ---------- le dessin : murs violets à double trait, notes de musique, disques qui tournent, et les sprites du Studio ---------- */
@@ -615,6 +656,12 @@ function nmDraw() {
       if (lw) px(g, on ? '#ffd84a' : '#ff8a3a', x - lw, y + dy, 2 * lw, 1); }
     px(g, '#07030f', x - 1, y - 1, 2, 2); }
   if (nm.bonus && nmImg.bonus.naturalWidth) g.drawImage(nmImg.bonus, nm.bonus.k * 64, 0, 64, 64, NM.BONUS[0] * T + T / 2 - 32, NM.TOP + NM.BONUS[1] * T + T / 2 - 40, 64, 64);
+  if (nm.champ) for (const s of nm.champ.sleep) { const im = nmGhost('#7a7a92,#b8b8d0,#4a4a60', 'D', 0, 'n'), x = Math.round(s.x * T + T / 2 - 20), y = Math.round(NM.TOP + s.y * T + T / 2 - 22);
+    g.globalAlpha = .7; g.drawImage(im, x, y + 4); g.globalAlpha = 1; px(g, '#4a4a60', x + 8, y + 14, 8, 2); px(g, '#4a4a60', x + 24, y + 14, 8, 2);  // les yeux fermés
+    const zt = (nm.tick + s.z) % 60; pxFont(g, 'z', x + 30 + zt / 6, y + 4 - zt / 3, '#b8b8d0', 8); }
+  for (const gh of nm.ghosts) if (!(nm.dying && nm.dying <= 80)) for (const f of gh.train) {
+    const col = nm.fright > 0 ? (nm.fright < 120 && Math.floor(nm.fright / 10) % 2 ? NM_FLASH_COL : NM_FEAR_COL) : NM_GHOSTS[gh.i].col, im = nmGhost(col.join(), f.dir, Math.floor((nm.tick + 5) / 10) % 2, nm.fright > 0 ? 'f' : 'n');
+    const x = Math.round(f.x * T + T / 2 - 20), y = Math.round(NM.TOP + f.y * T + T / 2 - 22); g.drawImage(im, x, y); if (x < 0) g.drawImage(im, x + W, y); if (x + 40 > W) g.drawImage(im, x - W, y); }
   // les fantômes, puis NeoMe (devant)
   for (const gh of nm.ghosts) {
     if (nm.dying && nm.dying <= 80) continue;
@@ -628,15 +675,16 @@ function nmDraw() {
   // le bandeau du haut : score, record, niveau, vies
   px(g, '#120a1e', 0, 0, W, NM.TOP - 4);
   pxFont(g, 'SCORE ' + nm.score, 12, 32, '#ffffff', 16);
-  pxFont(g, 'RECORD ' + Math.max(nm.score, games.best.neoman || 0), W / 2, 32, '#ffd84a', 16, 'center');
-  pxFont(g, 'NIVEAU ' + nm.level, W - 150, 32, '#b8d0ff', 16);
+  pxFont(g, 'RECORD ' + Math.max(nm.score, games.best[nm.champ ? 'neoman-champ' : 'neoman'] || 0), W / 2, 32, '#ffd84a', 16, 'center');
+  if (nm.champ) { const s = Math.ceil(nm.champ.time / 60); pxFont(g, Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'), W - 110, 32, s <= 30 && (nm.tick >> 4) % 2 ? '#ff4a5a' : '#b8d0ff', 16); }
+  else pxFont(g, 'NIVEAU ' + nm.level, W - 150, 32, '#b8d0ff', 16);
   for (let i = 0; i < nm.lives; i++) { const x = W - 196 - i * 22; px(g, '#ff5ab4', x, 14, 6, 6); px(g, '#ff5ab4', x + 8, 14, 6, 6); px(g, '#ff5ab4', x, 18, 14, 6); px(g, '#ff5ab4', x + 2, 24, 10, 4); px(g, '#ff5ab4', x + 5, 28, 4, 2); }
   const mid = NM.TOP + 12 * T;
-  if (nm.mode === 'ready') nmText(g, W, [['NEO-MAN', '#ff5ab4', 24], ['Flèches ou espace pour commencer', '#ffffff', 12]], mid);
+  if (nm.mode === 'ready') nmText(g, W, [[nm.champ ? 'CHAMPIONNAT' : 'NEO-MAN', '#ff5ab4', 24], ...(nm.champ ? [['5 minutes · labyrinthe ' + nmMaze.name, nmMaze.wall[0], 12]] : []), ['Flèches ou espace pour commencer', '#ffffff', 12]], mid);
   else if (nm.mode === 'pause') nmText(g, W, [['PAUSE', '#ffd84a', 24], ['P pour reprendre', '#ffffff', 12]], mid);
   else if (nm.ready > 0 && nm.mode === 'play') nmText(g, W, [['PRÊTE !', '#ffd84a', 20], ...(nm.level % 3 === 1 ? [['Labyrinthe ' + nmMaze.name, nmMaze.wall[0], 12]] : [])], mid);
   else if (nm.clear) nmText(g, W, [['NIVEAU ' + nm.level + ' FINI !', '#7ee07a', 20]], mid);
-  if (nm.mode === 'over') { nm.dead++; nmText(g, W, [['PARTIE FINIE', '#ff4a5a', 24], [nm.score + ' points, niveau ' + nm.level, '#ffffff', 12], [nm.record ? 'NOUVEAU RECORD !' : 'Record ' + (games.best.neoman || 0), '#ffd84a', 12], [nm.dead > 60 ? 'Espace : rejouer' : '', '#b8b0c8', 12]], mid); }
+  if (nm.mode === 'over') { nm.dead++; nmText(g, W, [[nm.champ ? (nm.champ.time ? 'PARTIE FINIE' : 'TEMPS ÉCOULÉ !') : 'PARTIE FINIE', '#ff4a5a', 24], [nm.score + ' points' + (nm.champ ? '' : ', niveau ' + nm.level), '#ffffff', 12], [nm.record ? 'NOUVEAU RECORD !' : 'Record ' + (games.best[nm.champ ? 'neoman-champ' : 'neoman'] || 0), '#ffd84a', 12], [nm.dead > 60 ? 'Espace : rejouer' : '', '#b8b0c8', 12]], mid); }
   if (nm.tick % 15 === 0) g.canvas.setAttribute('aria-label', 'Neo-Man : score ' + nm.score + ', niveau ' + nm.level + ', ' + nm.lives + ' vies, ' + (nm.dots.size + nm.power.size) + ' notes restantes' + (nm.fright ? ', fantômes effrayés' : '') + (nm.mode === 'over' ? ', perdu' : '') + '.');
 }
 function nmText(g, w, lines, y0) {  // lignes centrées en police pixel sur une bande sombre, la hauteur suit la taille du texte
@@ -645,13 +693,13 @@ function nmText(g, w, lines, y0) {  // lignes centrées en police pixel sur une 
   let y = y0; lines.forEach(([text, color, size], i) => { y += ss[i] * 10; pxFont(g, text, w / 2, y, color, size, 'center'); y += ss[i] * 4; });  // y : la ligne de base du texte
 }
 function nmInfo() {
-  $('nmStats').replaceChildren(...[['Meilleur score', games.best.neoman || 0], ['Plus haut niveau', games.best['neoman-level'] || 0], ['Fantômes attrapés', nms.ghosts], ['Parties', nms.games]].flatMap(([a, c]) => [el('span', '', a), el('b', '', String(c))]));
+  $('nmStats').replaceChildren(...[['Meilleur score', games.best.neoman || 0], ['Plus haut niveau', games.best['neoman-level'] || 0], ['Fantômes attrapés', nms.ghosts], ['Parties', nms.games], ['Record Championnat', games.best['neoman-champ'] || 0]].flatMap(([a, c]) => [el('span', '', a), el('b', '', String(c))]));
 }
 const NM_KEYS = {ArrowLeft: 'L', q: 'L', a: 'L', ArrowRight: 'R', d: 'R', ArrowUp: 'U', z: 'U', w: 'U', ArrowDown: 'D', s: 'D'};
 document.addEventListener('keydown', e => {
   if (!view.classList.contains('on') || !nm || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
   const k = e.key;
-  if (nm.mode === 'over') { if ((k === ' ' || k === 'Enter') && nm.dead > 60) { e.preventDefault(); nmNew(); nm.mode = 'play'; } return; }
+  if (nm.mode === 'over') { if ((k === ' ' || k === 'Enter') && nm.dead > 60) { e.preventDefault(); nmNew(!!nm.champ); nm.mode = 'play'; } return; }
   if (k === 'p' || k === 'P' || k === 'Escape') { if (nm.mode === 'play') nm.mode = 'pause'; else if (nm.mode === 'pause') nm.mode = 'play'; return; }
   if (NM_KEYS[k]) { e.preventDefault(); nm.keys.delete(NM_KEYS[k]); nm.keys.add(NM_KEYS[k]); nm.p.want = NM_KEYS[k]; nm.mode = 'play'; }
   else if ((k === ' ' || k === 'Enter') && nm.mode !== 'play') { e.preventDefault(); nm.mode = 'play'; }
@@ -663,6 +711,7 @@ document.addEventListener('keyup', e => { if (nm && NM_KEYS[e.key]) nm.keys.dele
     if (Math.hypot(dx, dy) > 24) { nm.p.want = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'D' : 'U'); start = [e.clientX, e.clientY]; } };
   cv.onpointerup = () => { start = null; }; }
 $('nmNew').onclick = () => { nmNew(); nm.mode = 'play'; $('nmNew').blur(); };
+$('nmChamp').onclick = () => { nmNew(true); $('nmChamp').blur(); };
 // le joueur automatique de la vérification : va vers la note la plus proche (chemin le plus court), en évitant les fantômes qui ne fuient pas
 function nmBot() {
   const p = nm.p; if (!nmAt(p)) return;
@@ -676,7 +725,7 @@ function nmBot() {
 }
 {  // vérification : le labyrinthe est d'un seul tenant et sans cul-de-sac ; le joueur automatique mange des notes ; un fantôme tue ;
    // un disque fait fuir les fantômes et on les attrape ; finir les notes fait passer au niveau 2
-  const bad = [], keep = nm, keepS = JSON.stringify(nms), keepB = [games.best.neoman, games.best['neoman-level']];
+  const bad = [], keep = nm, keepS = JSON.stringify(nms), keepB = [games.best.neoman, games.best['neoman-level'], games.best['neoman-champ']];
   nmMute = true;
   for (const m of NM_MAPS) { nmUseMaze(m);
   if (NM_MAP.some(r => r.length !== NM.C) || NM_MAP.length !== NM.R) bad.push('taille du labyrinthe ' + m.name);
@@ -712,14 +761,27 @@ function nmBot() {
   if (gf.state !== 'eaten' || nm.score < sc + 200 || nm.lives !== 3) bad.push('fantôme effrayé pas attrapé');
   for (let t = 0; t < 600 && gf.state !== 'roam'; t++) { nm.fright = 0; nmUpdate(); }
   if (gf.state !== 'roam') bad.push('le fantôme attrapé ne ressort pas (' + gf.state + ')');
+  // le championnat : un dormeur réveillé rejoint une file qui suit son fantôme ; effrayée, la file se mange (100, 200…) ; sinon elle tue ; le temps finit la partie ; les notes reviennent
+  nm = null; nmNew(true); nm.rnd = seeded(5); nm.mode = 'play'; nm.ready = 0; if (nm.champ.sleep.length !== 10) bad.push('dormeurs ' + nm.champ.sleep.length);
+  const lead = nm.ghosts[0]; for (const g of nm.ghosts) if (g !== lead) { g.state = 'house'; g.release = 1e9; }
+  nm.champ.sleep = [{x: Math.round(nm.p.x) - 1, y: Math.round(nm.p.y), z: 0}]; nm.p.dir = 'L'; nm.p.want = 'L'; nmUpdate();
+  if (lead.train.length !== 1 || nm.champ.sleep.length > 1 && nm.champ.sleep.every(s => s.x === Math.round(nm.p.x) - 1)) bad.push('le dormeur ne rejoint pas la file');
+  nm.p.x = 1; nm.p.y = 19; nm.keys.clear(); for (let t = 0; t < 120; t++) nmUpdate(); const f0 = lead.train[0], h = lead.hist[lead.hist.length - 1 - NM_GAP];
+  if (!f0 || Math.abs(f0.x - h.x) > 1e-6 || Math.abs(f0.y - h.y) > 1e-6 || Math.hypot(f0.x - lead.x, f0.y - lead.y) > 1.6) bad.push('la file ne suit pas son fantôme');
+  lead.train.push({x: 0, y: 0, dir: 'L'}, {x: 0, y: 0, dir: 'L'}); nm.fright = 200; nm.champ.eatenTrain = 0; const s0 = nm.score;
+  for (const f of [...lead.train]) { f.x = nm.p.x; f.y = nm.p.y; nmTrainHit(); } if (lead.train.length || nm.score !== s0 + 600) bad.push('manger la file : ' + (nm.score - s0));
+  nm.fright = 0; lead.train.push({x: nm.p.x, y: nm.p.y, dir: 'L'}); const lv = nm.lives; nmTrainHit(); if (nm.lives !== lv - 1 || lead.train.length) bad.push('la file ne tue pas');
+  nm = null; nmNew(true); nm.champ.maze = NM_MAPS[0]; nmLevel(); nm.mode = "play"; nm.ready = 0; nm.dots.clear(); nm.power = new Set([(NM.START[0] - 1) + ',' + NM.START[1]]); nm.p.dir = 'L'; nm.p.want = 'L'; for (let t = 0; t < 12; t++) nmUpdate();
+  if (nm.clear || nm.dots.size < 100 || nm.champ.refills !== 1 || nm.level !== 2) bad.push('les notes ne reviennent pas en championnat');
+  nm.champ.time = 1; nm.dying = 0; nmUpdate(); if (nm.mode !== 'over') bad.push('le temps ne finit pas le championnat');
   console.assert(!bad.length, 'neoman', bad);
-  nm = keep; Object.assign(nms, JSON.parse(keepS)); for (const [k, v] of [['neoman', keepB[0]], ['neoman-level', keepB[1]]]) { if (v === undefined) delete games.best[k]; else games.best[k] = v; }
+  nm = keep; Object.assign(nms, JSON.parse(keepS)); if (!JSON.parse(keepS).champs) delete nms.champs; for (const [k, v] of [['neoman', keepB[0]], ['neoman-level', keepB[1]], ['neoman-champ', keepB[2]]]) { if (v === undefined) delete games.best[k]; else games.best[k] = v; }
   nmMute = false; $('nmCanvas').__nmBad = bad; if (keep) nmUseMaze(nmMazeOf(keep.level));
 }
 ctx.onOpen(() => {
   if (!nm || !nm.g) { nmNew(); nm.g = $('nmCanvas').getContext('2d'); }
   gameLoop(nm, 'neoman', nmUpdate, nmDraw); nmInfo();
 });
-$('nmCanvas').__nm = { get st() { return nm; }, bot: nmBot, update: nmUpdate, maze: () => nmMaze.name, level: n => { nm.level = n; nmLevel(); } };
+$('nmCanvas').__nm = { get st() { return nm; }, bot: nmBot, update: nmUpdate, maze: () => nmMaze.name, level: n => { nm.level = n; nmLevel(); }, champ: () => nmNew(true) };
 $('nmFs').onclick = () => { $('nmFs').blur(); try { if (document.fullscreenElement) document.exitFullscreen(); else $('nmCanvas').parentElement.requestFullscreen?.().catch(() => {}); } catch {} };
 }
