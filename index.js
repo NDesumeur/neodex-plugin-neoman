@@ -300,6 +300,9 @@ export default async function (ctx) {
   const best = (k, v) => { const b = games.best[k]; if (v > (b ?? 0)) {  // un score nul n'est jamais un record
     games.best[k] = v; saveGames(); return true; } return false; };
   const gstore = (k, init) => (games[k] ??= init);
+  // les trophées de NeoDex (3.4.8 et plus) : succès et records déclarés dans plugin.json ; sur un NeoDex plus ancien, rien ne se passe
+  const trophy = id => { ctx.games?.unlock(id).catch(() => {}); };
+  const trophyRecord = (id, v) => { if (v != null && Number.isFinite(+v)) ctx.games?.record(id, +v).catch(() => {}); };
 function gameLoop(st, appKey, update, draw) {
   cancelAnimationFrame(st.raf);
   const STEP = 1000 / 60; let acc = 0, last = performance.now();
@@ -693,6 +696,7 @@ function nmText(g, w, lines, y0) {  // lignes centrées en police pixel sur une 
   let y = y0; lines.forEach(([text, color, size], i) => { y += ss[i] * 10; pxFont(g, text, w / 2, y, color, size, 'center'); y += ss[i] * 4; });  // y : la ligne de base du texte
 }
 function nmInfo() {
+  setTimeout(nmTrophies);
   $('nmStats').replaceChildren(...[['Meilleur score', games.best.neoman || 0], ['Plus haut niveau', games.best['neoman-level'] || 0], ['Fantômes attrapés', nms.ghosts], ['Parties', nms.games], ['Record Championnat', games.best['neoman-champ'] || 0]].flatMap(([a, c]) => [el('span', '', a), el('b', '', String(c))]));
 }
 const NM_KEYS = {ArrowLeft: 'L', q: 'L', a: 'L', ArrowRight: 'R', d: 'R', ArrowUp: 'U', z: 'U', w: 'U', ArrowDown: 'D', s: 'D'};
@@ -777,6 +781,13 @@ function nmBot() {
   console.assert(!bad.length, 'neoman', bad);
   nm = keep; Object.assign(nms, JSON.parse(keepS)); if (!JSON.parse(keepS).champs) delete nms.champs; for (const [k, v] of [['neoman', keepB[0]], ['neoman-level', keepB[1]], ['neoman-champ', keepB[2]]]) { if (v === undefined) delete games.best[k]; else games.best[k] = v; }
   nmMute = false; $('nmCanvas').__nmBad = bad; if (keep) nmUseMaze(nmMazeOf(keep.level));
+}
+// les trophées, tirés des statistiques et des records gardés (aussi à l'ouverture : ce qui a été fait avant compte)
+function nmTrophies() {
+  const b = games.best, sig = [b.neoman, b['neoman-level'], b['neoman-champ'], nms.games, nms.ghosts, nms.champs].join(); if (sig === nmTrophies.sig) return; nmTrophies.sig = sig;
+  trophyRecord('score', b.neoman || null); trophyRecord('niveau', b['neoman-level'] || null); trophyRecord('champ', b['neoman-champ'] || null);
+  if (nms.games >= 1) trophy('premier'); if (b['neoman-level'] >= 3) trophy('n3'); if (b['neoman-level'] >= 10) trophy('n10');
+  if (nms.ghosts >= 100) trophy('fantomes'); if (b.neoman >= 10000) trophy('s10000'); if (nms.champs >= 1) trophy('champ');
 }
 ctx.onOpen(() => {
   if (!nm || !nm.g) { nmNew(); nm.g = $('nmCanvas').getContext('2d'); }
